@@ -1,0 +1,57 @@
+[
+    {
+        "id": "1",
+        "name": "Arif Hossain",
+        "phone": "+8801711122233",
+        "bloodGroup": "O+",
+        "location": "Dhaka",
+        "age": 28,
+        "weight": 72,
+        "smoker": "No",
+        "disease": "None"
+    },
+    {
+        "id": "2",
+        "name": "Sumaiya Akter",
+        "phone": "+8801822233344",
+        "bloodGroup": "A+",
+        "location": "Chittagong",
+        "age": 24,
+        "weight": 58,
+        "smoker": "No",
+        "disease": "Asthma (mild)"
+    },
+    {
+        "id": "3",
+        "name": "Kamal Uddin",
+        "phone": "+8801933344455",
+        "bloodGroup": "B+",
+        "location": "Sylhet",
+        "age": 35,
+        "weight": 80,
+        "smoker": "Yes",
+        "disease": "None"
+    },
+    {
+        "id": "4",
+        "name": "Farjana Begum",
+        "phone": "+8801644455566",
+        "bloodGroup": "AB+",
+        "location": "Rajshahi",
+        "age": 30,
+        "weight": 65,
+        "smoker": "No",
+        "disease": "None"
+    },
+    {
+        "id": "5",
+        "name": "Rahim Ali",
+        "phone": "+8801555566677",
+        "bloodGroup": "O-",
+        "location": "Khulna",
+        "age": 26,
+        "weight": 70,
+        "smoker": "No",
+        "disease": "None"
+    }
+]

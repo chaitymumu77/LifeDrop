@@ -1,0 +1,22 @@
+[
+    {
+        "id": "H1",
+        "name": "Square Hospital",
+        "location": "Panthapath, Dhaka"
+    },
+    {
+        "id": "H2",
+        "name": "Epic Health Care ",
+        "location": "CMC West Gate,Chattogram"
+    },
+    {
+        "id": "H3",
+        "name": "Evercare Hospital",
+        "location": "Bashundhara, Dhaka"
+    },
+    {
+        "id": "H4",
+        "name": "Sargiscope Hospital",
+        "location": "Panchlaish,Chattogram "
+    }
+]

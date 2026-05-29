@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<notices>
+    <notice type="urgent">
+        <title>Emergency O- Blood Required</title>
+        <date>2026-04-10</date>
+        <content>A patient needs 2 bags of O- blood immediately at Dhaka Medical College Hospital. Please contact +880170000000.</content>
+    </notice>
+    <notice type="info">
+        <title>Blood Donation Camp 2026</title>
+        <date>2026-04-15</date>
+        <content>Join our annual blood donation camp at University Campus this Friday from 9 AM to 4 PM.</content>
+    </notice>
+    <notice type="info">
+        <title>Thalassemia Patient Needs B+</title>
+        <date>2026-04-08</date>
+        <content>Regular requirement of B+ blood for a 5-year-old Thalassemia patient. Scheduled donation needed.</content>
+    </notice>
+    <notice type="urgent">
+        <title>Accident Victim Needs AB+</title>
+        <date>2026-04-07</date>
+        <content>Urgent requirement of AB+ blood at Square Hospital due to a major accident. Please help.</content>
+    </notice>
+</notices>
