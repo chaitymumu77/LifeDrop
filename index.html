@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LifeDrop - Donate Blood, Save Lives</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div id="nav"></div>
+
+  <section class="hero">
+    <div class="hero-content fade-in">
+      <p style="color:var(--red);font-weight:600;letter-spacing:2px;font-size:0.8rem;text-transform:uppercase;margin-bottom:1rem;">🩸 Bangladesh's Trusted Donor Network</p>
+      <h1>Donate Blood,<br><span>Save a Life</span></h1>
+      <p>Connect with verified blood donors across Bangladesh instantly. Every drop counts — be someone's hero today.</p>
+      <div class="hero-btns">
+        <a href="register.html" class="btn btn-primary">Become a Donor</a>
+        <a href="donor-list.html" class="btn btn-outline">Find Donor →</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Stats -->
+  <section style="background:white;border-bottom:1px solid var(--border);">
+    <div class="container" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));">
+      <div class="stat-card"><div class="stat-num" id="totalDonors">0</div><div class="stat-label">Registered Donors</div></div>
+      <div class="stat-card"><div class="stat-num">8</div><div class="stat-label">Blood Types Available</div></div>
+      <div class="stat-card"><div class="stat-num" id="pendingReq">0</div><div class="stat-label">Active Requests</div></div>
+      <div class="stat-card"><div class="stat-num">24/7</div><div class="stat-label">Emergency Support</div></div>
+    </div>
+  </section>
+
+  <!-- Why LifeDrop -->
+  <section class="section">
+    <div class="container">
+      <h2 class="section-title" style="text-align:center;">Why Choose LifeDrop?</h2>
+      <p class="section-sub" style="text-align:center;">Built for Bangladesh, powered by community.</p>
+      <div class="grid-3">
+        <div class="card"><div class="card-body" style="text-align:center;">
+          <div style="font-size:2.5rem;margin-bottom:1rem;">🔍</div>
+          <h4 style="margin-bottom:0.5rem;">Quick Search</h4>
+          <p style="color:var(--gray);font-size:0.875rem;">Find matching donors instantly by blood group and location — no delays.</p>
+        </div></div>
+        <div class="card"><div class="card-body" style="text-align:center;">
+          <div style="font-size:2.5rem;margin-bottom:1rem;">🛡️</div>
+          <h4 style="margin-bottom:0.5rem;">Verified Donors</h4>
+          <p style="color:var(--gray);font-size:0.875rem;">All donors are registered with health details, eligibility status checked automatically.</p>
+        </div></div>
+        <div class="card"><div class="card-body" style="text-align:center;">
+          <div style="font-size:2.5rem;margin-bottom:1rem;">📢</div>
+          <h4 style="margin-bottom:0.5rem;">Emergency Alerts</h4>
+          <p style="color:var(--gray);font-size:0.875rem;">Real-time notice board for urgent blood needs and upcoming donation camps.</p>
+        </div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Featured Donors -->
+  <section class="section" style="background:white;">
+    <div class="container">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:2rem;flex-wrap:wrap;gap:1rem;">
+        <div>
+          <h2 class="section-title">Recent Donors</h2>
+          <p class="section-sub" style="margin:0;">Ready to help near you</p>
+        </div>
+        <a href="donor-list.html" class="btn btn-outline-red">View All Donors →</a>
+      </div>
+      <div class="grid-3" id="featuredDonors"></div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="section" style="background:linear-gradient(135deg,var(--charcoal),#3D0A1A);color:white;text-align:center;">
+    <div class="container">
+      <h2 style="font-family:'Playfair Display',serif;font-size:2.2rem;margin-bottom:1rem;">Ready to Save a Life?</h2>
+      <p style="color:rgba(255,255,255,0.75);margin-bottom:2rem;">Join hundreds of donors across Bangladesh making a difference every day.</p>
+      <div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;">
+        <a href="register.html" class="btn btn-primary">Register as Donor</a>
+        <a href="contact.html" class="btn btn-outline">Request Blood 🚨</a>
+      </div>
+    </div>
+  </section>
+
+  <div id="foot"></div>
+  <script src="js/data.js"></script>
+  <script>
+    document.getElementById('nav').innerHTML = navHTML('index');
+    document.getElementById('foot').innerHTML = footerHTML();
+    document.getElementById('totalDonors').textContent = donors.length;
+    document.getElementById('pendingReq').textContent = bloodRequests.filter(r => r.status === 'pending').length;
+
+    // Animate stat numbers
+    document.querySelectorAll('.stat-num').forEach(el => {
+      const target = parseInt(el.textContent);
+      if (isNaN(target)) return;
+      let cur = 0;
+      const step = Math.ceil(target / 30);
+      const t = setInterval(() => { cur = Math.min(cur + step, target); el.textContent = cur; if (cur >= target) clearInterval(t); }, 40);
+    });
+
+    // Featured donors (first 6)
+    const featured = donors.slice(0, 6);
+    document.getElementById('featuredDonors').innerHTML = featured.map(d => {
+      const e = eligibility(d.lastDonation);
+      return `<div class="card donor-card" onclick="window.location.href='donor-profile.html?id=${d.id}'">
+        <div class="card-body">
+          <div style="display:flex;align-items:center;gap:1rem;margin-bottom:1rem;">
+            <div class="blood-badge">${d.blood}</div>
+            <div>
+              <h4>${d.name}</h4>
+              <span class="badge ${e.eligible ? 'badge-available' : 'badge-wait'}">${e.eligible ? 'Available' : 'On Wait'}</span>
+            </div>
+          </div>
+          <div class="meta">📍 ${d.location}<br>🗓️ Last: ${formatDate(d.lastDonation)}</div>
+          <div style="margin-top:1rem;"><a href="donor-profile.html?id=${d.id}" class="btn btn-outline-red btn-sm" style="width:100%;text-align:center;">View Profile</a></div>
+        </div>
+      </div>`;
+    }).join('');
+  </script>
+</body>
+</html>

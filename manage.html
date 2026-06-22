@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LifeDrop - Manage Donors</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div id="nav"></div>
+  <div class="admin-layout">
+    <nav class="sidebar">
+      <div class="sidebar-title">Admin Panel</div>
+      <a href="dashboard.html">📊 Dashboard</a>
+      <a href="manage.html" class="active">👥 Manage Donors</a>
+      <a href="manage-requests.html">🩸 Blood Requests</a>
+      <a href="notice.html">📢 Notices</a>
+      <div class="sidebar-title">Account</div>
+      <a href="#" onclick="logout()">🚪 Logout</a>
+    </nav>
+    <div class="admin-content fade-in">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;flex-wrap:wrap;gap:1rem;">
+        <div>
+          <h2 style="font-family:'Playfair Display',serif;font-size:1.75rem;">Donor Management</h2>
+          <p style="color:var(--gray);font-size:0.875rem;">Add, edit, or remove donors from the system.</p>
+        </div>
+        <button class="btn btn-success" onclick="openAdd()">+ Add Donor</button>
+      </div>
+
+      <div id="msgBanner" style="display:none;" class="alert alert-success"></div>
+
+      <div class="card">
+        <div style="padding:1rem 1.5rem;border-bottom:1px solid var(--border);">
+          <input class="form-control" id="searchInput" style="max-width:300px;" placeholder="🔍 Search donors…" oninput="renderTable()">
+        </div>
+        <div class="table-wrap" id="donorTable"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add Modal -->
+  <div class="modal-overlay" id="addModal">
+    <div class="modal-box" style="max-width:540px;">
+      <button class="modal-close" onclick="closeModals()">✕</button>
+      <div class="modal-title">➕ Add New Donor</div>
+      <div class="grid-2" style="gap:1rem;">
+        <div class="form-group"><label class="form-label">Full Name *</label><input class="form-control" id="addName" placeholder="Full name"></div>
+        <div class="form-group"><label class="form-label">Phone *</label><input class="form-control" id="addPhone" placeholder="+880…"></div>
+        <div class="form-group">
+          <label class="form-label">Blood Group *</label>
+          <select class="form-select" id="addBG"><option value="">Select</option><option>A+</option><option>A-</option><option>B+</option><option>B-</option><option>AB+</option><option>AB-</option><option>O+</option><option>O-</option></select>
+        </div>
+        <div class="form-group"><label class="form-label">Location *</label><input class="form-control" id="addLoc" placeholder="City"></div>
+        <div class="form-group"><label class="form-label">Age</label><input class="form-control" id="addAge" type="number" min="18" max="65"></div>
+        <div class="form-group"><label class="form-label">Weight (kg)</label><input class="form-control" id="addWeight" type="number" min="45"></div>
+      </div>
+      <button class="btn btn-success" style="width:100%;margin-top:0.5rem;" onclick="addDonor()">Save Donor</button>
+    </div>
+  </div>
+
+  <!-- Edit Modal -->
+  <div class="modal-overlay" id="editModal">
+    <div class="modal-box">
+      <button class="modal-close" onclick="closeModals()">✕</button>
+      <div class="modal-title">✏️ Edit Donor</div>
+      <input type="hidden" id="editId">
+      <div class="form-group"><label class="form-label">Full Name</label><input class="form-control" id="editName"></div>
+      <div class="form-group"><label class="form-label">Phone</label><input class="form-control" id="editPhone"></div>
+      <div class="form-group">
+        <label class="form-label">Blood Group</label>
+        <select class="form-select" id="editBG"><option>A+</option><option>A-</option><option>B+</option><option>B-</option><option>AB+</option><option>AB-</option><option>O+</option><option>O-</option></select>
+      </div>
+      <div class="form-group"><label class="form-label">Location</label><input class="form-control" id="editLoc"></div>
+      <button class="btn btn-primary" style="width:100%;" onclick="saveEdit()">Update Donor</button>
+    </div>
+  </div>
+
+  <div id="foot"></div>
+  <script src="js/data.js"></script>
+  <script>
+    document.getElementById('nav').innerHTML = navHTML('dashboard');
+    document.getElementById('foot').innerHTML = footerHTML();
+
+    const sess = JSON.parse(localStorage.getItem('lifeDropUser') || 'null');
+    if (!sess || sess.role !== 'admin') window.location.href = 'login.html';
+
+    // Work with a mutable copy
+    let donorList = [...donors];
+
+    function renderTable() {
+      const q = document.getElementById('searchInput').value.toLowerCase();
+      const filtered = donorList.filter(d => !q || d.name.toLowerCase().includes(q) || d.location.toLowerCase().includes(q) || d.blood.includes(q.toUpperCase()));
+      document.getElementById('donorTable').innerHTML = `
+        <table>
+          <thead><tr><th>#</th><th>Name</th><th>Blood</th><th>Phone</th><th>Location</th><th>Actions</th></tr></thead>
+          <tbody>${filtered.map((d,i) => `<tr>
+            <td>${i+1}</td>
+            <td><strong>${d.name}</strong></td>
+            <td><span class="badge badge-red">${d.blood}</span></td>
+            <td>${d.phone}</td>
+            <td>${d.location}</td>
+            <td style="display:flex;gap:0.4rem;">
+              <button class="btn btn-primary btn-sm" onclick="openEdit(${d.id})">Edit</button>
+              <button class="btn btn-danger btn-sm" onclick="deleteDonor(${d.id})">Delete</button>
+            </td>
+          </tr>`).join('')}
+          ${filtered.length === 0 ? '<tr><td colspan="6" style="text-align:center;padding:2rem;color:var(--gray);">No donors found.</td></tr>' : ''}
+          </tbody>
+        </table>`;
+    }
+
+    function showMsg(msg) {
+      const b = document.getElementById('msgBanner');
+      b.textContent = msg; b.style.display = 'block';
+      setTimeout(() => b.style.display = 'none', 3000);
+    }
+
+    function openAdd() { closeModals(); document.getElementById('addModal').classList.add('active'); }
+    function openEdit(id) {
+      const d = donorList.find(x => x.id === id);
+      document.getElementById('editId').value = id;
+      document.getElementById('editName').value = d.name;
+      document.getElementById('editPhone').value = d.phone;
+      document.getElementById('editBG').value = d.blood;
+      document.getElementById('editLoc').value = d.location;
+      closeModals();
+      document.getElementById('editModal').classList.add('active');
+    }
+    function closeModals() {
+      document.querySelectorAll('.modal-overlay').forEach(m => m.classList.remove('active'));
+    }
+
+    function addDonor() {
+      const name = document.getElementById('addName').value.trim();
+      const phone = document.getElementById('addPhone').value.trim();
+      const blood = document.getElementById('addBG').value;
+      const location = document.getElementById('addLoc').value.trim();
+      if (!name || !phone || !blood || !location) { alert('Please fill required fields.'); return; }
+      const newD = { id: Date.now(), name, phone, blood, location, age: parseInt(document.getElementById('addAge').value)||25, weight: parseFloat(document.getElementById('addWeight').value)||65, smoker: false, disease: 'None', lastDonation: null };
+      donorList.unshift(newD);
+      closeModals();
+      renderTable();
+      showMsg(`✅ Donor "${name}" added successfully!`);
+    }
+
+    function saveEdit() {
+      const id = parseInt(document.getElementById('editId').value);
+      const d = donorList.find(x => x.id === id);
+      d.name = document.getElementById('editName').value;
+      d.phone = document.getElementById('editPhone').value;
+      d.blood = document.getElementById('editBG').value;
+      d.location = document.getElementById('editLoc').value;
+      closeModals();
+      renderTable();
+      showMsg('✅ Donor updated successfully!');
+    }
+
+    function deleteDonor(id) {
+      if (!confirm('Are you sure you want to delete this donor?')) return;
+      donorList = donorList.filter(d => d.id !== id);
+      renderTable();
+      showMsg('🗑️ Donor deleted successfully!');
+    }
+
+    renderTable();
+  </script>
+</body>
+</html>

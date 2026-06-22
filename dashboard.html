@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LifeDrop - Admin Dashboard</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div id="nav"></div>
+  <div class="admin-layout">
+    <nav class="sidebar">
+      <div class="sidebar-title">Admin Panel</div>
+      <a href="dashboard.html" class="active">📊 Dashboard</a>
+      <a href="manage.html">👥 Manage Donors</a>
+      <a href="manage-requests.html">🩸 Blood Requests</a>
+      <a href="notice.html">📢 Notices</a>
+      <div class="sidebar-title" style="margin-top:auto;">Account</div>
+      <a href="#" onclick="logout()">🚪 Logout</a>
+    </nav>
+    <div class="admin-content fade-in">
+      <h2 style="font-family:'Playfair Display',serif;font-size:1.75rem;margin-bottom:0.5rem;">Admin Overview</h2>
+      <p style="color:var(--gray);margin-bottom:2rem;">Welcome back, Admin! Here's what's happening today.</p>
+
+      <!-- Stats -->
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1.25rem;margin-bottom:2rem;" id="statsGrid"></div>
+
+      <!-- Charts row -->
+      <div class="grid-2" style="gap:1.5rem;margin-bottom:2rem;">
+        <!-- Blood Group Distribution -->
+        <div class="card"><div class="card-body">
+          <h4 style="font-weight:700;margin-bottom:1.5rem;">Blood Group Distribution</h4>
+          <div id="bgChart"></div>
+        </div></div>
+        <!-- Recent Requests -->
+        <div class="card"><div class="card-body">
+          <h4 style="font-weight:700;margin-bottom:1rem;">Recent Blood Requests</h4>
+          <div id="recentReqs"></div>
+        </div></div>
+      </div>
+
+      <!-- Recent Donors -->
+      <div class="card"><div class="card-body">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
+          <h4 style="font-weight:700;">Recently Registered Donors</h4>
+          <a href="manage.html" class="btn btn-outline-red btn-sm">Manage All →</a>
+        </div>
+        <div class="table-wrap" id="recentDonors"></div>
+      </div></div>
+    </div>
+  </div>
+  <div id="foot"></div>
+
+  <script src="js/data.js"></script>
+  <script>
+    document.getElementById('nav').innerHTML = navHTML('dashboard');
+    document.getElementById('foot').innerHTML = footerHTML();
+
+    const sess = JSON.parse(localStorage.getItem('lifeDropUser') || 'null');
+    if (!sess || sess.role !== 'admin') window.location.href = 'login.html';
+
+    const pending = bloodRequests.filter(r => r.status === 'pending').length;
+    const groups = [...new Set(donors.map(d => d.blood))].length;
+
+    // Stats
+    const stats = [
+      { label: 'Total Donors', val: donors.length, icon: '👥', color: '#C8102E' },
+      { label: 'Blood Groups', val: groups, icon: '🩸', color: '#10B981' },
+      { label: 'Pending Requests', val: pending, icon: '🚨', color: '#F59E0B' },
+      { label: 'Completed Requests', val: bloodRequests.filter(r=>r.status==='completed').length, icon: '✅', color: '#3B82F6' },
+    ];
+    document.getElementById('statsGrid').innerHTML = stats.map(s => `
+      <div class="card stat-card" style="border-top-color:${s.color};">
+        <div style="font-size:2rem;margin-bottom:0.5rem;">${s.icon}</div>
+        <div class="stat-num" style="color:${s.color};">${s.val}</div>
+        <div class="stat-label">${s.label}</div>
+      </div>`).join('');
+
+    // Blood group bar chart (CSS only)
+    const bgCounts = {};
+    donors.forEach(d => bgCounts[d.blood] = (bgCounts[d.blood] || 0) + 1);
+    const maxCount = Math.max(...Object.values(bgCounts));
+    document.getElementById('bgChart').innerHTML = Object.entries(bgCounts).sort((a,b)=>b[1]-a[1]).map(([g, c]) => `
+      <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:0.75rem;">
+        <span style="width:36px;font-size:0.75rem;font-weight:700;color:var(--red);">${g}</span>
+        <div style="flex:1;background:var(--light);border-radius:4px;height:24px;overflow:hidden;">
+          <div style="width:${(c/maxCount)*100}%;background:var(--red);height:100%;border-radius:4px;display:flex;align-items:center;padding-left:0.5rem;color:white;font-size:0.75rem;font-weight:700;transition:width 0.8s ease;">${c}</div>
+        </div>
+      </div>`).join('');
+
+    // Recent requests
+    document.getElementById('recentReqs').innerHTML = bloodRequests.slice(0,4).map(r => `
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:0.75rem 0;border-bottom:1px solid var(--border);font-size:0.85rem;">
+        <div><div style="font-weight:600;">${r.patient}</div><div style="color:var(--gray);font-size:0.75rem;">${r.hospital}</div></div>
+        <div style="text-align:right;">
+          <span class="badge badge-red">${r.blood}</span><br>
+          <span class="badge ${r.status==='pending' ? 'badge-wait' : 'badge-available'}" style="margin-top:0.25rem;">${r.status}</span>
+        </div>
+      </div>`).join('');
+
+    // Recent donors table
+    document.getElementById('recentDonors').innerHTML = `
+      <table>
+        <thead><tr><th>#</th><th>Name</th><th>Blood</th><th>Location</th><th>Phone</th><th>Status</th></tr></thead>
+        <tbody>${donors.slice(0,5).map((d,i) => {
+          const e = eligibility(d.lastDonation);
+          return `<tr>
+            <td>${i+1}</td>
+            <td><strong>${d.name}</strong></td>
+            <td><span class="badge badge-red">${d.blood}</span></td>
+            <td>${d.location}</td>
+            <td>${d.phone}</td>
+            <td><span class="badge ${e.eligible ? 'badge-available' : 'badge-wait'}">${e.eligible ? 'Available' : 'On Wait'}</span></td>
+          </tr>`;
+        }).join('')}</tbody>
+      </table>`;
+  </script>
+</body>
+</html>

@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LifeDrop - Search</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div id="nav"></div>
+
+  <div class="page-header">
+    <div class="container">
+      <h2>Advanced Search</h2>
+      <p>Search through our donor database instantly by name, location, or blood group.</p>
+    </div>
+  </div>
+
+  <section class="section">
+    <div class="container fade-in">
+      <div class="card" style="margin-bottom:2rem;">
+        <div class="card-body">
+          <h3 style="font-weight:700;margin-bottom:0.5rem;">Live Search & Filter</h3>
+          <p style="color:var(--gray);font-size:0.875rem;margin-bottom:1.25rem;">Results update as you type.</p>
+          <div style="display:flex;gap:1rem;flex-wrap:wrap;">
+            <div class="search-bar" style="flex:2;min-width:200px;">
+              <input class="form-control form-control-lg" id="searchInput" placeholder="Type name or location (e.g. Dhaka or Salim)…" oninput="renderSearch()">
+            </div>
+            <div style="flex:1;min-width:160px;">
+              <select class="form-select" id="bgFilter" onchange="renderSearch()" style="height:100%;">
+                <option value="">All Blood Groups</option>
+                <option>A+</option><option>A-</option><option>B+</option><option>B-</option>
+                <option>AB+</option><option>AB-</option><option>O+</option><option>O-</option>
+              </select>
+            </div>
+            <div style="flex:1;min-width:160px;">
+              <select class="form-select" id="statusFilter" onchange="renderSearch()" style="height:100%;">
+                <option value="">All Status</option>
+                <option value="available">Available Only</option>
+                <option value="wait">On Wait</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <p id="resultCount" style="color:var(--gray);font-size:0.875rem;margin-bottom:1rem;"></p>
+      <div class="grid-3" id="searchResults"></div>
+      <div id="noResults" style="display:none;text-align:center;padding:4rem;color:var(--gray);">
+        <div style="font-size:3rem;margin-bottom:1rem;">🔍</div>
+        <h3>No results found</h3>
+        <p>Try adjusting your search terms.</p>
+      </div>
+    </div>
+  </section>
+
+  <div id="foot"></div>
+  <script src="js/data.js"></script>
+  <script>
+    document.getElementById('nav').innerHTML = navHTML('search');
+    document.getElementById('foot').innerHTML = footerHTML();
+
+    function renderSearch() {
+      const q = document.getElementById('searchInput').value.toLowerCase();
+      const bg = document.getElementById('bgFilter').value;
+      const status = document.getElementById('statusFilter').value;
+
+      const filtered = donors.filter(d => {
+        const e = eligibility(d.lastDonation);
+        const matchSearch = !q || d.name.toLowerCase().includes(q) || d.location.toLowerCase().includes(q) || d.blood.toLowerCase().includes(q);
+        const matchBG = !bg || d.blood === bg;
+        const matchStatus = !status || (status === 'available' && e.eligible) || (status === 'wait' && !e.eligible);
+        return matchSearch && matchBG && matchStatus;
+      });
+
+      document.getElementById('resultCount').textContent = `Found ${filtered.length} donor(s)`;
+      document.getElementById('noResults').style.display = filtered.length ? 'none' : 'block';
+
+      document.getElementById('searchResults').innerHTML = filtered.map(d => {
+        const e = eligibility(d.lastDonation);
+        return `<div class="card donor-card fade-in" onclick="window.location.href='donor-profile.html?id=${d.id}'">
+          <div class="card-body" style="text-align:center;">
+            <span class="badge ${e.eligible ? 'badge-available' : 'badge-wait'}" style="margin-bottom:0.75rem;">${e.eligible ? 'Available' : 'On Wait'}</span>
+            <div class="blood-badge" style="width:64px;height:64px;font-size:1.1rem;margin:0 auto 0.75rem;">${d.blood}</div>
+            <h4 style="font-size:1rem;margin-bottom:0.25rem;">${d.name}</h4>
+            <div class="meta" style="margin-bottom:1rem;">📍 ${d.location}<br>🗓️ ${formatDate(d.lastDonation)}</div>
+            <button class="btn btn-outline-red btn-sm" style="width:100%;">View Details</button>
+          </div>
+        </div>`;
+      }).join('');
+    }
+
+    renderSearch();
+  </script>
+</body>
+</html>

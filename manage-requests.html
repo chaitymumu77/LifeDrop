@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LifeDrop - Blood Requests</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div id="nav"></div>
+  <div class="admin-layout">
+    <nav class="sidebar">
+      <div class="sidebar-title">Admin Panel</div>
+      <a href="dashboard.html">📊 Dashboard</a>
+      <a href="manage.html">👥 Manage Donors</a>
+      <a href="manage-requests.html" class="active">🩸 Blood Requests</a>
+      <a href="notice.html">📢 Notices</a>
+      <div class="sidebar-title">Account</div>
+      <a href="#" onclick="logout()">🚪 Logout</a>
+    </nav>
+    <div class="admin-content fade-in">
+      <h2 style="font-family:'Playfair Display',serif;font-size:1.75rem;margin-bottom:0.5rem;">Emergency Blood Requests</h2>
+      <p style="color:var(--gray);margin-bottom:1.5rem;">Review and manage incoming blood requests.</p>
+      <div id="msgBanner" style="display:none;" class="alert alert-success"></div>
+      <div class="table-wrap" id="reqTable"></div>
+    </div>
+  </div>
+  <div id="foot"></div>
+
+  <script src="js/data.js"></script>
+  <script>
+    document.getElementById('nav').innerHTML = navHTML('dashboard');
+    document.getElementById('foot').innerHTML = footerHTML();
+    const sess = JSON.parse(localStorage.getItem('lifeDropUser') || 'null');
+    if (!sess || sess.role !== 'admin') window.location.href = 'login.html';
+
+    let reqs = [...bloodRequests];
+    // Merge any locally saved requests
+    const localReqs = JSON.parse(localStorage.getItem('bloodRequests') || '[]');
+    reqs = [...reqs, ...localReqs];
+
+    function renderReqs() {
+      document.getElementById('reqTable').innerHTML = `
+        <table>
+          <thead><tr><th>#</th><th>Patient</th><th>Blood</th><th>Hospital</th><th>Units</th><th>Phone</th><th>Status</th><th>Date</th><th>Actions</th></tr></thead>
+          <tbody>${reqs.map((r,i) => `<tr>
+            <td>${i+1}</td>
+            <td><strong>${r.patient}</strong></td>
+            <td><span class="badge badge-red">${r.blood}</span></td>
+            <td style="font-size:0.8rem;">${r.hospital}</td>
+            <td>${r.units}</td>
+            <td style="font-size:0.8rem;">${r.phone}</td>
+            <td><span class="badge ${r.status==='pending'?'badge-wait':'badge-available'}">${r.status}</span></td>
+            <td style="font-size:0.75rem;color:var(--gray);">${formatDate(r.date||r.created_at)}</td>
+            <td style="display:flex;gap:0.35rem;flex-wrap:wrap;">
+              ${r.status==='pending' ? `<button class="btn btn-success btn-sm" onclick="markDone(${i})">✓ Done</button>` : ''}
+              <button class="btn btn-danger btn-sm" onclick="deleteReq(${i})">Delete</button>
+            </td>
+          </tr>`).join('')}
+          </tbody>
+        </table>`;
+    }
+
+    function showMsg(msg) {
+      const b = document.getElementById('msgBanner');
+      b.textContent = msg; b.style.display = 'block';
+      setTimeout(() => b.style.display = 'none', 3000);
+    }
+
+    function markDone(i) { reqs[i].status = 'completed'; renderReqs(); showMsg('✅ Request marked as completed.'); }
+    function deleteReq(i) {
+      if (!confirm('Delete this request?')) return;
+      reqs.splice(i, 1); renderReqs(); showMsg('🗑️ Request deleted.');
+    }
+
+    renderReqs();
+  </script>
+</body>
+</html>

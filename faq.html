@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LifeDrop - FAQ</title>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .faq-item { border-bottom: 1px solid var(--border); }
+    .faq-q { width:100%;background:none;border:none;text-align:left;padding:1.1rem 0;font-size:0.95rem;font-weight:600;cursor:pointer;display:flex;justify-content:space-between;align-items:center;color:var(--charcoal); }
+    .faq-q:hover { color:var(--red); }
+    .faq-a { display:none;padding:0 0 1rem;color:var(--gray);font-size:0.875rem;line-height:1.7; }
+    .faq-a.open { display:block; }
+    .faq-icon { font-size:1.25rem;color:var(--red);transition:transform 0.2s;flex-shrink:0; }
+    .faq-item.open .faq-icon { transform:rotate(45deg); }
+    .tab-btns { display:flex;gap:0.5rem;margin-bottom:2rem; }
+    .tab-btn { padding:0.5rem 1.25rem;border-radius:20px;border:1.5px solid var(--border);background:white;font-weight:600;cursor:pointer;font-size:0.875rem;color:var(--gray); }
+    .tab-btn.active { background:var(--red);color:white;border-color:var(--red); }
+  </style>
+</head>
+<body>
+  <div id="nav"></div>
+  <div class="page-header">
+    <div class="container"><h2>Frequently Asked Questions</h2><p>Everything you need to know about blood donation and LifeDrop.</p></div>
+  </div>
+  <section class="section">
+    <div class="container" style="max-width:720px;">
+      <div class="tab-btns">
+        <button class="tab-btn active" onclick="showTab('general',this)">General</button>
+        <button class="tab-btn" onclick="showTab('donor',this)">For Donors</button>
+        <button class="tab-btn" onclick="showTab('medical',this)">Medical</button>
+      </div>
+
+      <div id="tab-general" class="tab-content">
+        <div id="faqGeneral"></div>
+      </div>
+      <div id="tab-donor" class="tab-content" style="display:none;">
+        <div id="faqDonor"></div>
+      </div>
+      <div id="tab-medical" class="tab-content" style="display:none;">
+        <div id="faqMedical"></div>
+      </div>
+    </div>
+  </section>
+  <div id="foot"></div>
+  <script src="js/data.js"></script>
+  <script>
+    document.getElementById('nav').innerHTML = navHTML('faq');
+    document.getElementById('foot').innerHTML = footerHTML();
+
+    const faqs = {
+      general: [
+        ["What is LifeDrop?", "LifeDrop is a community-driven blood donor management system connecting patients with registered blood donors across Bangladesh. It's completely free to use."],
+        ["Is it free?", "Yes! LifeDrop is 100% free for both donors and patients. Our mission is to save lives without any cost barrier."],
+        ["How do I find a donor?", "Visit the 'Find Donor' page, filter by blood group and location, and click on any donor card to view their contact details and availability status."],
+        ["How do I request emergency blood?", "Go to the Contact page and fill in the Emergency Blood Request form. We'll connect you with available matching donors as soon as possible."],
+      ],
+      donor: [
+        ["How do I register as a donor?", "Click 'Become a Donor' on the homepage or visit the Register page. Fill in your personal and health details — it takes less than 2 minutes."],
+        ["How often can I donate blood?", "Generally, you can donate whole blood every 3 months (90 days). LifeDrop automatically tracks your eligibility based on your last donation date."],
+        ["What happens after I register?", "Your profile goes live immediately on our donor directory. Patients and hospitals can find you by blood group and location."],
+        ["Can I update my last donation date?", "Yes! Log in to your profile and click 'Edit Profile' to update your last donation date. This keeps your availability status accurate."],
+      ],
+      medical: [
+        ["Who is eligible to donate blood?", "You must be 18–65 years old, weigh at least 45 kg, be in good health, and not have donated blood in the last 3 months."],
+        ["Can smokers donate blood?", "Smokers can donate, but are advised not to smoke 2 hours before donation. Heavy smoking may affect blood quality."],
+        ["What diseases disqualify me?", "Active infections, HIV, Hepatitis B/C, certain cancers, and some medications may disqualify you. Please consult a doctor if unsure."],
+        ["Does blood donation hurt?", "There's usually just a brief pinch when the needle goes in. The donation itself (about 10 minutes) is generally painless. Most donors feel fine immediately after."],
+      ]
+    };
+
+    function buildFAQ(items, containerId) {
+      document.getElementById(containerId).innerHTML = items.map((f, i) => `
+        <div class="faq-item" id="faq-${containerId}-${i}">
+          <button class="faq-q" onclick="toggleFAQ('${containerId}',${i})">
+            <span>${f[0]}</span><span class="faq-icon">+</span>
+          </button>
+          <div class="faq-a" id="ans-${containerId}-${i}">${f[1]}</div>
+        </div>`).join('');
+    }
+
+    function toggleFAQ(cat, i) {
+      const item = document.getElementById(`faq-${cat}-${i}`);
+      const ans = document.getElementById(`ans-${cat}-${i}`);
+      const isOpen = ans.classList.contains('open');
+      document.querySelectorAll(`#tab-${cat} .faq-a`).forEach(a => a.classList.remove('open'));
+      document.querySelectorAll(`#tab-${cat} .faq-item`).forEach(a => a.classList.remove('open'));
+      if (!isOpen) { ans.classList.add('open'); item.classList.add('open'); }
+    }
+
+    function showTab(tab, btn) {
+      document.querySelectorAll('.tab-content').forEach(t => t.style.display = 'none');
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.getElementById('tab-' + tab).style.display = 'block';
+      btn.classList.add('active');
+    }
+
+    buildFAQ(faqs.general, 'faqGeneral');
+    buildFAQ(faqs.donor, 'faqDonor');
+    buildFAQ(faqs.medical, 'faqMedical');
+  </script>
+</body>
+</html>

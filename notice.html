@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LifeDrop - Notice Board</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div id="nav"></div>
+  <div class="page-header">
+    <div class="container"><h2>📢 Notice Board</h2><p>Emergency alerts and donation camp announcements.</p></div>
+  </div>
+  <section class="section">
+    <div class="container" style="max-width:720px;">
+      <div id="noticeList"></div>
+    </div>
+  </section>
+  <div id="foot"></div>
+  <script src="js/data.js"></script>
+  <script>
+    document.getElementById('nav').innerHTML = navHTML('notice');
+    document.getElementById('foot').innerHTML = footerHTML();
+    document.getElementById('noticeList').innerHTML = notices.map(n => `
+      <div class="card fade-in" style="margin-bottom:1.25rem;">
+        <div style="background:var(--red);height:4px;"></div>
+        <div class="card-body">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:1rem;flex-wrap:wrap;">
+            <h4 style="font-weight:700;font-size:1rem;">${n.title}</h4>
+            <span style="font-size:0.75rem;color:var(--gray);white-space:nowrap;">${formatDate(n.date)}</span>
+          </div>
+          <p style="color:var(--gray);font-size:0.875rem;margin-top:0.75rem;line-height:1.6;">${n.body}</p>
+        </div>
+      </div>`).join('');
+  </script>
+</body>
+</html>

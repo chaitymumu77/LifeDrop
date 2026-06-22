@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LifeDrop - Find Donors</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div id="nav"></div>
+
+  <div class="page-header">
+    <div class="container">
+      <h2>Find a Blood Donor</h2>
+      <p>Browse our verified donor directory. Use filters to find the right match.</p>
+    </div>
+  </div>
+
+  <section class="section">
+    <div class="container fade-in">
+      <!-- Filters -->
+      <div class="card" style="margin-bottom:1.5rem;">
+        <div class="card-body">
+          <div class="grid-2" style="gap:1rem;">
+            <div class="form-group search-bar" style="margin:0;">
+              <input class="form-control" id="searchInput" placeholder="Search by name or location…" oninput="renderDonors()">
+            </div>
+            <div class="form-group" style="margin:0;">
+              <select class="form-select" id="bgFilter" onchange="renderDonors()">
+                <option value="">All Blood Groups</option>
+                <option>A+</option><option>A-</option><option>B+</option><option>B-</option>
+                <option>AB+</option><option>AB-</option><option>O+</option><option>O-</option>
+              </select>
+            </div>
+          </div>
+          <div style="margin-top:1rem;display:flex;gap:0.5rem;flex-wrap:wrap;" id="bgQuickFilters"></div>
+        </div>
+      </div>
+
+      <p id="resultCount" style="color:var(--gray);font-size:0.875rem;margin-bottom:1rem;"></p>
+      <div class="grid-3" id="donorList"></div>
+      <div id="noResults" style="display:none;text-align:center;padding:4rem 2rem;color:var(--gray);">
+        <div style="font-size:3rem;margin-bottom:1rem;">🔍</div>
+        <h3>No donors found</h3>
+        <p style="margin-top:0.5rem;">Try a different search term or blood group.</p>
+      </div>
+    </div>
+  </section>
+
+  <div id="foot"></div>
+  <script src="js/data.js"></script>
+  <script>
+    document.getElementById('nav').innerHTML = navHTML('donor-list');
+    document.getElementById('foot').innerHTML = footerHTML();
+
+    // Quick filter buttons
+    const groups = ['A+','A-','B+','B-','AB+','AB-','O+','O-'];
+    document.getElementById('bgQuickFilters').innerHTML = groups.map(g =>
+      `<button class="btn btn-sm btn-outline-red" onclick="quickFilter('${g}')">${g}</button>`
+    ).join('') + `<button class="btn btn-sm" style="border:1.5px solid var(--border);color:var(--gray);" onclick="quickFilter('')">All</button>`;
+
+    function quickFilter(g) {
+      document.getElementById('bgFilter').value = g;
+      renderDonors();
+    }
+
+    function renderDonors() {
+      const q = document.getElementById('searchInput').value.toLowerCase();
+      const bg = document.getElementById('bgFilter').value;
+      const filtered = donors.filter(d => {
+        const matchSearch = !q || d.name.toLowerCase().includes(q) || d.location.toLowerCase().includes(q);
+        const matchBG = !bg || d.blood === bg;
+        return matchSearch && matchBG;
+      });
+
+      document.getElementById('resultCount').textContent = `Showing ${filtered.length} of ${donors.length} donors`;
+      document.getElementById('noResults').style.display = filtered.length ? 'none' : 'block';
+
+      document.getElementById('donorList').innerHTML = filtered.map(d => {
+        const e = eligibility(d.lastDonation);
+        return `<div class="card donor-card fade-in" onclick="window.location.href='donor-profile.html?id=${d.id}'">
+          <div style="background:var(--red);height:6px;"></div>
+          <div class="card-body">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:0.75rem;">
+              <h4 style="font-size:0.95rem;font-weight:700;">${d.name}</h4>
+              <span class="badge ${e.eligible ? 'badge-available' : 'badge-wait'}">${e.eligible ? 'Available' : 'On Wait'}</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1rem;">
+              <div class="blood-badge" style="width:44px;height:44px;font-size:0.85rem;">${d.blood}</div>
+              <div class="meta">📍 ${d.location}<br>📞 ${d.phone}</div>
+            </div>
+            <div class="meta" style="border-top:1px solid var(--border);padding-top:0.75rem;">
+              🗓️ Last Donation: <strong>${formatDate(d.lastDonation)}</strong>
+            </div>
+          </div>
+        </div>`;
+      }).join('');
+    }
+
+    renderDonors();
+  </script>
+</body>
+</html>

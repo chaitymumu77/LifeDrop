@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LifeDrop - My Profile</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div id="nav"></div>
+  <div id="content"></div>
+  <div id="foot"></div>
+  <div class="modal-overlay" id="editModal">
+    <div class="modal-box">
+      <button class="modal-close" onclick="closeModal()">✕</button>
+      <div class="modal-title">Edit Profile</div>
+      <div class="form-group"><label class="form-label">Full Name</label><input class="form-control" id="editName"></div>
+      <div class="form-group"><label class="form-label">Phone</label><input class="form-control" id="editPhone"></div>
+      <div class="form-group"><label class="form-label">Location</label><input class="form-control" id="editLocation"></div>
+      <div class="form-group"><label class="form-label">Last Donation Date</label><input class="form-control" id="editDonation" type="date"></div>
+      <button class="btn btn-primary" style="width:100%;" onclick="saveProfile()">Save Changes</button>
+    </div>
+  </div>
+
+  <script src="js/data.js"></script>
+  <script>
+    document.getElementById('nav').innerHTML = navHTML('profile');
+    document.getElementById('foot').innerHTML = footerHTML();
+
+    const sess = JSON.parse(localStorage.getItem('lifeDropUser') || 'null');
+    if (!sess || sess.role !== 'user') { window.location.href = 'login.html'; }
+
+    const donor = donors.find(d => d.id === 1) || donors[0];
+    const e = eligibility(donor.lastDonation);
+
+    function render() {
+      const initials = donor.name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0,2);
+      document.getElementById('content').innerHTML = `
+        <div class="page-header">
+          <div class="container"><h2>My Donor Profile</h2><p>Manage your information and track donation history.</p></div>
+        </div>
+        <section class="section">
+          <div class="container fade-in">
+            <div id="successBanner" style="display:none;" class="alert alert-success">Profile updated successfully!</div>
+            <div class="grid-2" style="gap:2rem;align-items:start;">
+              <div>
+                <div class="card" style="text-align:center;padding:2rem;margin-bottom:1.5rem;">
+                  <div class="profile-avatar">${initials}</div>
+                  <h3 style="font-weight:700;">${donor.name}</h3>
+                  <p style="color:var(--gray);font-size:0.875rem;margin:0.25rem 0 1rem;"><span class="badge badge-red">${donor.blood} Donor</span></p>
+                  <button class="btn btn-outline-red btn-sm" style="width:100%;" onclick="openModal()">✏️ Edit Profile</button>
+                </div>
+                <div class="alert ${e.eligible ? 'alert-success' : 'alert-warning'}">
+                  <strong>${e.eligible ? '✅ Eligible to Donate!' : '⏳ Currently Waiting'}</strong><br>
+                  <span style="font-size:0.875rem;">${e.msg}</span>
+                </div>
+              </div>
+              <div class="card">
+                <div style="padding:1.25rem 1.5rem;border-bottom:1px solid var(--border);">
+                  <h4 style="font-weight:700;">Personal Information</h4>
+                </div>
+                <div class="card-body">
+                  ${[['Full Name', donor.name], ['Email', sess.email], ['Phone', donor.phone], ['Location', donor.location], ['Blood Group', donor.blood], ['Age', donor.age + ' years'], ['Weight', donor.weight + ' kg'], ['Smoker', donor.smoker ? 'Yes' : 'No'], ['Last Donation', formatDate(donor.lastDonation)]].map(([label, val]) => `
+                    <div style="display:flex;justify-content:space-between;padding:0.75rem 0;border-bottom:1px solid var(--border);font-size:0.875rem;">
+                      <span style="color:var(--gray);">${label}</span>
+                      <span style="font-weight:600;">${val}</span>
+                    </div>`).join('')}
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>`;
+      // Populate edit modal
+      document.getElementById('editName').value = donor.name;
+      document.getElementById('editPhone').value = donor.phone;
+      document.getElementById('editLocation').value = donor.location;
+      document.getElementById('editDonation').value = donor.lastDonation || '';
+    }
+
+    function openModal() { document.getElementById('editModal').classList.add('active'); }
+    function closeModal() { document.getElementById('editModal').classList.remove('active'); }
+
+    function saveProfile() {
+      donor.name = document.getElementById('editName').value;
+      donor.phone = document.getElementById('editPhone').value;
+      donor.location = document.getElementById('editLocation').value;
+      donor.lastDonation = document.getElementById('editDonation').value || null;
+      closeModal();
+      render();
+      document.getElementById('successBanner').style.display = 'block';
+      setTimeout(() => document.getElementById('successBanner').style.display = 'none', 3000);
+    }
+
+    render();
+  </script>
+</body>
+</html>

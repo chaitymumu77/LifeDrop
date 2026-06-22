@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LifeDrop - Register as Donor</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div id="nav"></div>
+
+  <div class="page-header">
+    <div class="container">
+      <h2>Register as a Blood Donor</h2>
+      <p>Join our community of life-savers. Registration is free and takes only 2 minutes.</p>
+    </div>
+  </div>
+
+  <section class="section">
+    <div class="container" style="max-width:720px;">
+      <div class="card fade-in">
+        <div class="card-body" style="padding:2.5rem;">
+          <div id="successMsg" style="display:none;" class="alert alert-success"></div>
+          <div id="errMsg" style="display:none;" class="alert alert-danger"></div>
+
+          <h4 style="font-weight:700;margin-bottom:1.5rem;padding-bottom:0.75rem;border-bottom:1px solid var(--border);">Account Information</h4>
+          <div class="grid-2" style="gap:1rem;">
+            <div class="form-group"><label class="form-label">Full Name *</label><input class="form-control" id="name" placeholder="e.g. Rahim Uddin"></div>
+            <div class="form-group"><label class="form-label">Email Address *</label><input class="form-control" id="email" type="email" placeholder="your@email.com"></div>
+            <div class="form-group"><label class="form-label">Password *</label><input class="form-control" id="password" type="password" placeholder="Min 6 characters"></div>
+            <div class="form-group"><label class="form-label">Phone Number *</label><input class="form-control" id="phone" placeholder="+880…"></div>
+          </div>
+
+          <h4 style="font-weight:700;margin:1.5rem 0 1rem;padding-bottom:0.75rem;border-bottom:1px solid var(--border);">Donor Information</h4>
+          <div class="grid-2" style="gap:1rem;">
+            <div class="form-group">
+              <label class="form-label">Blood Group *</label>
+              <select class="form-select" id="blood">
+                <option value="">Select</option>
+                <option>A+</option><option>A-</option><option>B+</option><option>B-</option>
+                <option>AB+</option><option>AB-</option><option>O+</option><option>O-</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Gender *</label>
+              <select class="form-select" id="gender">
+                <option value="">Select</option>
+                <option>Male</option><option>Female</option><option>Other</option>
+              </select>
+            </div>
+            <div class="form-group"><label class="form-label">Location (City) *</label><input class="form-control" id="location" placeholder="e.g. Chittagong"></div>
+            <div class="form-group">
+              <label class="form-label">Smoker?</label>
+              <select class="form-select" id="smoker"><option value="No">No</option><option value="Yes">Yes</option></select>
+            </div>
+            <div class="form-group"><label class="form-label">Age *</label><input class="form-control" id="age" type="number" min="18" max="65" placeholder="18–65"></div>
+            <div class="form-group"><label class="form-label">Weight (kg) *</label><input class="form-control" id="weight" type="number" min="45" placeholder="Min 45 kg"></div>
+          </div>
+          <div class="form-group"><label class="form-label">Disease / Medication Details (Optional)</label><input class="form-control" id="disease" placeholder="e.g. Asthma, None"></div>
+
+          <button class="btn btn-primary" style="width:100%;padding:0.9rem;font-size:1rem;margin-top:0.5rem;" onclick="doRegister()">Register Now →</button>
+          <p style="text-align:center;margin-top:1rem;font-size:0.875rem;color:var(--gray);">Already have an account? <a href="login.html" style="color:var(--red);font-weight:600;text-decoration:none;">Login</a></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div id="foot"></div>
+  <script src="js/data.js"></script>
+  <script>
+    document.getElementById('nav').innerHTML = navHTML('register');
+    document.getElementById('foot').innerHTML = footerHTML();
+
+    function doRegister() {
+      const name = document.getElementById('name').value.trim();
+      const email = document.getElementById('email').value.trim();
+      const pass = document.getElementById('password').value;
+      const phone = document.getElementById('phone').value.trim();
+      const blood = document.getElementById('blood').value;
+      const location = document.getElementById('location').value.trim();
+      const age = document.getElementById('age').value;
+      const weight = document.getElementById('weight').value;
+
+      if (!name || !email || !pass || !phone || !blood || !location || !age || !weight) {
+        showErr('Please fill in all required fields.');
+        return;
+      }
+      if (pass.length < 6) { showErr('Password must be at least 6 characters.'); return; }
+      if (parseInt(age) < 18 || parseInt(age) > 65) { showErr('Age must be between 18 and 65.'); return; }
+      if (parseInt(weight) < 45) { showErr('Minimum weight requirement is 45 kg.'); return; }
+
+      // Save to localStorage
+      const newDonor = {
+        id: donors.length + Date.now(),
+        name, blood, location, phone, age: parseInt(age), weight: parseFloat(weight),
+        smoker: document.getElementById('smoker').value === 'Yes',
+        disease: document.getElementById('disease').value.trim() || 'None',
+        lastDonation: null
+      };
+      const saved = JSON.parse(localStorage.getItem('newDonors') || '[]');
+      saved.push(newDonor);
+      localStorage.setItem('newDonors', JSON.stringify(saved));
+      localStorage.setItem('lifeDropUser', JSON.stringify({ role: 'user', name, email, donorId: newDonor.id }));
+
+      document.getElementById('errMsg').style.display = 'none';
+      const s = document.getElementById('successMsg');
+      s.innerHTML = `✅ Registration successful! Welcome, <strong>${name}</strong>! <a href="login.html" style="color:inherit;font-weight:700;">Click here to Login →</a>`;
+      s.style.display = 'block';
+      s.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function showErr(msg) {
+      const el = document.getElementById('errMsg');
+      el.textContent = '⚠️ ' + msg;
+      el.style.display = 'block';
+      el.scrollIntoView({ behavior: 'smooth' });
+    }
+  </script>
+</body>
+</html>

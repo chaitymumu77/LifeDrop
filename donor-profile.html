@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LifeDrop - Donor Profile</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div id="nav"></div>
+  <div id="content"></div>
+  <div id="foot"></div>
+
+  <script src="js/data.js"></script>
+  <script>
+    document.getElementById('nav').innerHTML = navHTML('donor-list');
+    document.getElementById('foot').innerHTML = footerHTML();
+
+    const params = new URLSearchParams(window.location.search);
+    const id = parseInt(params.get('id'));
+    const donor = donors.find(d => d.id === id);
+
+    if (!donor) {
+      document.getElementById('content').innerHTML = `
+        <section class="section"><div class="container" style="text-align:center;padding:5rem 2rem;">
+          <div style="font-size:4rem;margin-bottom:1rem;">🚫</div>
+          <h2>Donor Not Found</h2>
+          <p style="color:var(--gray);margin:1rem 0;">This donor does not exist in our database.</p>
+          <a href="donor-list.html" class="btn btn-primary">← Back to List</a>
+        </div></section>`;
+    } else {
+      const e = eligibility(donor.lastDonation);
+      document.title = `LifeDrop - ${donor.name}`;
+      document.getElementById('content').innerHTML = `
+        <section class="section">
+          <div class="container" style="max-width:680px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;flex-wrap:wrap;gap:1rem;">
+              <h2 style="font-family:'Playfair Display',serif;font-size:1.5rem;">Donor Profile</h2>
+              <a href="javascript:history.back()" class="btn btn-outline-red btn-sm">← Back</a>
+            </div>
+            <div class="card fade-in">
+              <!-- Header -->
+              <div style="background:linear-gradient(135deg,var(--red-dark),var(--red));color:white;padding:2.5rem;text-align:center;">
+                <div style="font-size:4rem;font-weight:800;font-family:'Playfair Display',serif;">${donor.blood}</div>
+                <p style="font-size:1rem;opacity:0.85;margin-top:0.25rem;">Blood Group</p>
+                <span class="badge" style="background:${e.eligible ? '#D1FAE5' : '#FEF3C7'};color:${e.eligible ? '#065F46' : '#92400E'};margin-top:0.75rem;">${e.eligible ? '✅ Available' : '⏳ On Wait'}</span>
+              </div>
+              <div class="card-body">
+                <h2 style="font-family:'Playfair Display',serif;text-align:center;margin-bottom:2rem;padding-bottom:1rem;border-bottom:1px solid var(--border);">${donor.name}</h2>
+                <div class="grid-2" style="margin-bottom:1.5rem;">
+                  <div style="background:var(--light);padding:1rem;border-radius:8px;">
+                    <div style="font-size:0.75rem;color:var(--gray);margin-bottom:0.25rem;">📞 Phone</div>
+                    <div style="font-weight:700;">${donor.phone}</div>
+                  </div>
+                  <div style="background:var(--light);padding:1rem;border-radius:8px;">
+                    <div style="font-size:0.75rem;color:var(--gray);margin-bottom:0.25rem;">📍 Location</div>
+                    <div style="font-weight:700;">${donor.location}</div>
+                  </div>
+                  <div style="background:var(--light);padding:1rem;border-radius:8px;">
+                    <div style="font-size:0.75rem;color:var(--gray);margin-bottom:0.25rem;">Age</div>
+                    <div style="font-weight:700;">${donor.age} years</div>
+                  </div>
+                  <div style="background:var(--light);padding:1rem;border-radius:8px;">
+                    <div style="font-size:0.75rem;color:var(--gray);margin-bottom:0.25rem;">Weight</div>
+                    <div style="font-weight:700;">${donor.weight} kg</div>
+                  </div>
+                </div>
+                <div style="background:var(--light);padding:1rem;border-radius:8px;margin-bottom:1.5rem;">
+                  <div style="font-size:0.75rem;color:var(--gray);margin-bottom:0.25rem;">Smoker</div>
+                  <div style="font-weight:700;color:${donor.smoker ? 'var(--warning)' : 'var(--success)'};">${donor.smoker ? 'Yes ⚠️' : 'No ✅'}</div>
+                </div>
+                <div class="alert ${e.eligible ? 'alert-success' : 'alert-warning'}">
+                  <strong>${e.eligible ? '✅ Eligible to Donate' : '⏳ Currently Waiting'}</strong><br>
+                  ${e.msg}<br>
+                  <small style="opacity:0.8;">Last Donation: ${formatDate(donor.lastDonation)}</small>
+                </div>
+                <div class="alert alert-info">
+                  <strong>Medical Note</strong><br>
+                  Disease History: ${donor.disease || 'None reported'}<br>
+                  <small>Please verify all health records before blood collection.</small>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>`;
+    }
+  </script>
+</body>
+</html>

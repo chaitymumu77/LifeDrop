@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LifeDrop - About Us</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div id="nav"></div>
+  <section class="hero" style="padding:3.5rem 2rem;">
+    <div class="hero-content"><h1>Who We <span>Are</span></h1><p>A student-led initiative connecting blood donors with patients across Bangladesh.</p></div>
+  </section>
+  <section class="section">
+    <div class="container">
+      <div class="grid-2" style="gap:3rem;align-items:center;">
+        <div>
+          <h2 class="section-title">Our Mission</h2>
+          <p style="color:var(--gray);line-height:1.8;margin-bottom:1.25rem;">LifeDrop is a non-profit, open-source project aimed at eliminating the gap between blood donors and patients. We believe no one should lose their life due to lack of access to safe blood.</p>
+          <p style="color:var(--gray);line-height:1.8;margin-bottom:1.5rem;">Built with HTML, CSS, JavaScript, and PHP/MySQL, our system is designed to be lightweight, fast, and accessible even on slow internet connections.</p>
+          <ul style="list-style:none;display:flex;flex-direction:column;gap:0.75rem;">
+            <li style="display:flex;gap:0.75rem;align-items:flex-start;font-size:0.9rem;">✅ <span>Create an accessible directory of ready donors across Bangladesh</span></li>
+            <li style="display:flex;gap:0.75rem;align-items:flex-start;font-size:0.9rem;">✅ <span>Spread awareness about blood group shortages in local areas</span></li>
+            <li style="display:flex;gap:0.75rem;align-items:flex-start;font-size:0.9rem;">✅ <span>Use modern technology to make blood requests simple and fast</span></li>
+          </ul>
+        </div>
+        <div>
+          <div style="background:linear-gradient(135deg,var(--red-light),white);border-radius:16px;padding:3rem;text-align:center;">
+            <div style="font-size:5rem;margin-bottom:1rem;">🩸</div>
+            <h3 style="font-family:'Playfair Display',serif;color:var(--red);font-size:2rem;margin-bottom:0.5rem;">LifeDrop</h3>
+            <p style="color:var(--gray);">Blood Management System</p>
+            <div style="margin-top:2rem;display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+              <div style="background:white;border-radius:8px;padding:1rem;box-shadow:0 1px 6px rgba(0,0,0,0.08);">
+                <div style="font-family:'Playfair Display',serif;font-size:2rem;color:var(--red);font-weight:700;">12+</div>
+                <div style="font-size:0.75rem;color:var(--gray);">Donors</div>
+              </div>
+              <div style="background:white;border-radius:8px;padding:1rem;box-shadow:0 1px 6px rgba(0,0,0,0.08);">
+                <div style="font-family:'Playfair Display',serif;font-size:2rem;color:var(--red);font-weight:700;">8</div>
+                <div style="font-size:0.75rem;color:var(--gray);">Blood Types</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <div id="foot"></div>
+  <script src="js/data.js"></script>
+  <script>
+    document.getElementById('nav').innerHTML = navHTML('about');
+    document.getElementById('foot').innerHTML = footerHTML();
+  </script>
+</body>
+</html>
